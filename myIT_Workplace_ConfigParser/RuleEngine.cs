@@ -22,9 +22,10 @@ namespace myIT_Workplace_ConfigParser
 
             if (rule != null)
             {
-                Console.WriteLine("Evaluate Rule {0}; {1}", ruleId, rule.name);
                 result = parseTerm(rule.term);
-            }else
+                Console.WriteLine("Evaluate Rule {0} \"{1}\" - {3}:={2}", ruleId, rule.name, result, rule.term);
+            }
+            else
             {
                 Console.WriteLine("Rule Not Found {0}", ruleId);
             }

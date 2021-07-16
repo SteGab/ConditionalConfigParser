@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System;
-using System.IO;
 using System.Xml;
+using System.Xml.XPath;
 
 namespace myIT_Workplace_ConfigParser
 {
@@ -11,195 +10,206 @@ namespace myIT_Workplace_ConfigParser
     {
         private string xmlFileName = @"D:\01_Development\VisualStudio\myIT_Workplace_ConfigParser\myIT_Workplace_ConfigParser\myITWP_Config.xml";
         private XmlTextReader reader = null;
-        private Boolean inSectionRules = false;
-        private Boolean inSectionNavigation = false;
-        private Boolean inSectionGroups = false;
-        private DataModelFactory df = null;
-        private IRuleEngine ruleEng;
+        private DataModelFactory datamodelFactory = null;
+        private IRuleEngine ruleEngine;
+        private XPathNavigator navigator;
+        private XPathDocument document;
 
         public void setConfigFileName(String filename)
         {
             this.xmlFileName = filename;
         }
 
-        public void parseConfig()
+        public ConfigModel parseConfig()
         {
-            df = new DataModelFactory();
-            ruleEng = new RuleEngine();
-            try
-            {
-                reader = new XmlTextReader(this.xmlFileName);
-                reader.WhitespaceHandling = WhitespaceHandling.None;
+            Console.WriteLine("***** Parsing start");
+            datamodelFactory = new DataModelFactory();
+            ruleEngine = new RuleEngine();
 
-                while (reader.Read())
-                {
-                    if ( isStartTag("rules") )
-                    {
-                        // Rule Section
-                        inSectionRules = true;
-                        parseRules();
-                    }
+            document = new XPathDocument(xmlFileName);
+            navigator = document.CreateNavigator();
 
-                    if (isStartTag("navigation"))
-                    {
-                        // Rule Section
-                    }
+            parseRules();
+            ruleEngine.setRules(datamodelFactory.rules);
 
-                    if (isStartTag("groups"))
-                    {
-                        // Rule Section
-                        parseGroups();
-                    }
+            parseGroups();
 
-                    if (isStartTag("Pages"))
-                    {
-                        // Page Section
-                    }
-                }
-            }
+            //parsePages();
 
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-            }
+            Console.WriteLine("***** Parsing done");
+
+            return datamodelFactory.getDatamodel();
         }
+
 
         private void parseRules()
         {
-            Console.WriteLine("Parsing Rules Section...");
-            List<String> attributes = new List<String>();
-
-            while (reader.Read() && !isEndTag("rules") )
+            XPathNodeIterator nodes = navigator.Select("Configuration/Rules/*");
+            while (nodes.MoveNext())
             {
-                
-                if (isStartTag("rule"))
-                {
-                    attributes.Add(reader.GetAttribute("id"));
-                    attributes.Add(reader.GetAttribute("name"));
-                    Console.WriteLine("id={0}", attributes[0]);
-                    Console.WriteLine("name={0}", attributes[1]);
-                }
-
-                if (reader.NodeType == XmlNodeType.Text)
-                {
-                    attributes.Add(reader.Value.Trim());
-                }
-
-                if (isEndTag("rule"))
-                {
-                    df.addRule(attributes[0], attributes[1], attributes[2]);
-                    attributes.Clear();
-                }
-                
+                String ruleId = nodes.Current.GetAttribute("id", "");
+                String name = nodes.Current.GetAttribute("name", "");
+                String term = nodes.Current.Value.Trim();
+                datamodelFactory.addRule(ruleId, name, term);
             }
-
-            
-            Console.WriteLine("Parsing Rules Section DONE!");
         }
 
-        private void parseNavigation()
+        private Boolean evaluateRule(XPathNodeIterator nodes, Boolean invertRule)
         {
-
+            Boolean ruleResult = false;
+            if ((nodes.Current.Name == "RuleOK" || nodes.Current.Name == "RuleNOK"))
+            {
+                String ruleId = nodes.Current.GetAttribute("id", "");
+                ruleResult = ruleEngine.evaluateRule(ruleId);   
+            }
+            if (invertRule) ruleResult = !ruleResult;
+            return ruleResult;
         }
 
-        private void parseEntity()
-        {
-
-        }
 
         private void parseGroups()
         {
-            Console.WriteLine("Parsing Groups Section...");
-            List<String> attributes = new List<String>();
-
-            ruleEng.setRules(df.rules);
-
-            while (reader.Read() && !isEndTag("groups"))
+            XPathNodeIterator nodes = navigator.Select("Configuration/Groups/*[self::Group]");
+            while (nodes.MoveNext())
             {
+                Group actGroup = datamodelFactory.addGroup();
+                actGroup.id = nodes.Current.GetAttribute("id", "");
+                actGroup.translationKey = nodes.Current.GetAttribute("key", "");
 
-                if (isStartTag("group"))
+                // Parse all Group configuration related Tags
+                XPathNavigator groupNavigator = nodes.Current.CreateNavigator();
+                XPathNodeIterator groupNodes = groupNavigator.Select("./*[not(self::Entity) and not(self::RuleOK) and not(self::RuleNOK)]");
+                parseConfigTags(groupNodes, actGroup);
+
+                // Parse Conditional Group configuration for RuleOK
+                groupNodes = groupNavigator.Select("./*[(self::RuleOK)]");
+                while (groupNodes.MoveNext())
                 {
-                    attributes.Add(reader.GetAttribute("id"));
-                    attributes.Add(reader.GetAttribute("key"));
-                    Console.WriteLine("id={0}", attributes[0]);
-                    Console.WriteLine("key={0}", attributes[1]);
-                }
-
-                if (isStartTag("RuleOK"))
-                {
-                    String ruleToEvaluate = reader.GetAttribute("id");
-                    if (ruleEng.evaluateRule(ruleToEvaluate))
+                    if (evaluateRule(groupNodes, false))
                     {
-                        // RuleOK: Handle Tags within Rule
-                        parseConditioanlGroupTags();
-                        Console.WriteLine("RuleOK id={0}: Evaluate Tags", ruleToEvaluate);
-
-                    } else
-                    {
-                        Console.WriteLine("RuleOK id={0}: Rule evaluates to NOK", ruleToEvaluate);
-                    }
-                    
-                }
-
-                if (isStartTag("RuleNOK"))
-                {
-                    String ruleToEvaluate = reader.GetAttribute("id");
-                    if (!ruleEng.evaluateRule(ruleToEvaluate))
-                    {
-                        // RuleNOK: Handle Tags within Rule
-                        parseConditioanlGroupTags();
-                        Console.WriteLine("RuleNOK id={0}: Evaluate Tags", ruleToEvaluate);
-                    }else
-                    {
-                        Console.WriteLine("RuleNOK id={0}: Rule evaluates to OK", ruleToEvaluate);
+                        parseConfigTags(nodes, actGroup);
                     }
                 }
 
-                if (isStartTag("entity"))
+                // Parse Conditional Group configuration for RuleNOK
+                groupNodes = groupNavigator.Select("./*[(self::RuleNOK)]");
+                while (groupNodes.MoveNext())
                 {
-                    parseEntity();
+                    if (evaluateRule(groupNodes, true))
+                    {
+                        parseConfigTags(nodes, actGroup);
+                    }
                 }
 
+                // Parse all Entities (unconditional)
+                groupNodes = groupNavigator.Select("./*[self::Entity]");
+                parseEntities(groupNodes, actGroup);
 
-                if (isEndTag("group"))
+                // Parse all Conditional Entities for RuleOK
+                groupNodes = groupNavigator.Select("./RuleOK/*[self::Entity]");
+                if (evaluateRule(groupNodes, false))
                 {
-                    df.addGroup();
-                    attributes.Clear();
+                    parseEntities(groupNodes, actGroup);
                 }
+
+                // Parse all Conditional Entities for RuleOK
+                groupNodes = groupNavigator.Select("./RuleNOK/*[self::Entity]");
+                if (evaluateRule(groupNodes, true))
+                {
+                    parseEntities(groupNodes, actGroup);
+                }
+
 
             }
-
-
-            Console.WriteLine("Parsing Rules Section DONE!");
         }
 
-        private void parseConditioanlGroupTags()
+        private void parseConfigTags(XPathNodeIterator nodes, UIElement uiElement)
         {
-            while (reader.Read() && !(isEndTag("ruleOK") || isEndTag("ruleNOK")) )
+            XPathNavigator groupNavigator = nodes.Current.CreateNavigator();
+            XPathNodeIterator groupNodes = null;
+            groupNodes = groupNavigator.Select("./*[not(self::Entity) and not(self::RuleOK) and not(self::RuleNOK)]");
+
+            while (groupNodes.MoveNext())
             {
-                
+                switch (groupNodes.Current.Name)
+                {
+                    case "displayType":
+                        uiElement.displayType = groupNodes.Current.GetAttribute("type", "");
+                        break;
+                    case "isHidden":
+                        uiElement.isHidden = true;
+                        break;
+                    case "tooltip":
+                        uiElement.tooltip = groupNodes.Current.Value;
+                        break;
+                    case "IconString":
+                        if (uiElement is Entity)
+                        {
+                            ((Entity)uiElement).iconString = groupNodes.Current.Value;
+                        }
+                        break;
+                    case "Type":
+                        if (uiElement is Entity)
+                        {
+                            ((Entity)uiElement).type = groupNodes.Current.Value;
+                        }
+                        break;
+                    case "Target":
+                        if (uiElement is Entity)
+                        {
+                            ((Entity)uiElement).target = groupNodes.Current.Value;
+                        }
+                        break;
+                    case "Hint":
+                        if (uiElement is Entity)
+                        {
+                            ((Entity)uiElement).hintIcon = groupNodes.Current.GetAttribute("icon","");
+                            ((Entity)uiElement).hintTooltip = groupNodes.Current.GetAttribute("tooltip", "");
+                        }
+                        break;
+                }
             }
         }
 
-        private void parseEntityTags()
+        private void parseEntities(XPathNodeIterator nodes, Group group)
+        {
+            while (nodes.MoveNext())
+            {
+                Entity actEntity = datamodelFactory.addEntityToGroup(group);
+                actEntity.id = nodes.Current.GetAttribute("id", "");
+                actEntity.translationKey = nodes.Current.GetAttribute("name", "");
+                actEntity.groupId = group.id;
+
+                // Parse all Entity configuration related Tags
+                XPathNavigator entityNavigator = nodes.Current.CreateNavigator();
+                XPathNodeIterator subNodes = entityNavigator.Select("./*[self::Entity]");
+                parseConfigTags(subNodes, actEntity);
+
+                // Parse Conditional Entity configuration for RuleOK
+                subNodes = entityNavigator.Select("./*[(self::RuleOK)]");
+                while (subNodes.MoveNext())
+                {
+                    if (evaluateRule(subNodes, false))
+                    {
+                        parseConfigTags(subNodes, actEntity);
+                    }
+                }
+
+                // Parse Conditional Entity configuration for RuleNOK
+                subNodes = entityNavigator.Select("./*[(self::RuleNOK)]");
+                while (subNodes.MoveNext())
+                {
+                    if (evaluateRule(subNodes, true))
+                    {
+                        parseConfigTags(subNodes, actEntity);
+                    }
+                }
+            }
+        }
+
+        private void parsePageTags(XPathNodeIterator nodes, Entity entity)
         {
 
         }
-
-        private Boolean isStartTag(String tagName)
-        {
-            Boolean res = false;
-            res = reader.NodeType == XmlNodeType.Element && reader.Name.Equals(tagName, StringComparison.OrdinalIgnoreCase);
-            return res;
-        }
-
-        private Boolean isEndTag(String tagName)
-        {
-            Boolean res = false;
-            res = reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(tagName, StringComparison.OrdinalIgnoreCase);
-            return res;
-        }
-
     }
 }

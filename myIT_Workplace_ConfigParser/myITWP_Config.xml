@@ -3,8 +3,8 @@
 
 
 <Configuration>
-    <!-- Regeln -->
-    <!--
+	<!-- Regeln -->
+	<!--
     Type: if (Attribute -operator- value) then isOK else isNOK
     -operator- : >, <, >=, <=, ==, !=, contains, containsNot
 
@@ -14,84 +14,98 @@
     combination: AND, OR(, NOT)
 
     -->
-    <Rules>
-        <Rule id="100" name="Office: Not installed">
-            (Devices.Values.Domain -eq audide00) AND (Devices.Values.HANI_STATUS -ne 40-INSTALLIERT)
-        </Rule>
+	<Rules>
+		<Rule id="100" name="Office: Not installed">
+			(Devices.Values.Domain -eq audide00) AND (Devices.Values.HANI_STATUS -ne 40-INSTALLIERT)
+		</Rule>
 
-        <Rule id="101" name="Office: Not installed or Not compliant">
-            (Devices.Values.Domain -eq audide00) AND ((Devices.Values.HANI_STATUS -ne 40-INSTALLIERT) OR (Device.Values.EPO_Available -ne YES))
-        </Rule>
+		<Rule id="101" name="Office: Not installed or Not compliant">
+			(Devices.Values.Domain -eq audide00) AND ((Devices.Values.HANI_STATUS -ne 40-INSTALLIERT) OR (Device.Values.EPO_Available -ne YES))
+		</Rule>
 
-        <Rule id="4711" name="Client Bereinigung zutreffend">
-        <!-- Kampagne Client Bereinigung -->
-        <!-- Liefert die Abfrage dieses Attributs der Objekte unter Devices
+		<Rule id="4711" name="Client Bereinigung zutreffend">
+			<!-- Kampagne Client Bereinigung -->
+			<!-- Liefert die Abfrage dieses Attributs der Objekte unter Devices
             leere Menge => RuleNOK
             mindestens 1 Objekt => RuleOK
         -->
-            (Devices.Values.CAMPAIGN -eq 2) 
-        </Rule>
+			(Devices.Values.CAMPAIGN -eq 2)
+		</Rule>
 
-        <Rule id="4712" name="Softwareausphasung">
-            (x.y.z -eq 1234) 
-        </Rule>
-    </Rules>
+		<Rule id="4712" name="Softwareausphasung">
+			(x.y.z -eq 1234)
+		</Rule>
+	</Rules>
 
-    <!-- Gruppen -->
-    <Groups>
-        <Group id="200" key="Activities" >
-        <!-- Gruppe mit Campaigns -->
-            <displayType type="Button"/> <!-- Anzeige als Buttons-->
-           
-            <RuleOK id="100"> 
-                <isHidden/> 
-                <Test1 xx="hallo"/>
-                <Entity id="1233" name="Allgemeine Umfrage">
-                    <RuleOK id="999"><IconString >xyz.png</IconString></RuleOK>
+	<!-- Gruppen -->
+	<Groups>
+		<Group id="200" key="Activities">
+			<!-- Gruppe mit Campaigns -->
+			<displayType type="Button"/>
+			<!-- Anzeige als Buttons-->
 
-                    <RuleOK id="101"> 
-                        <IconString >Allgemein.png</IconString>     
-                        <Hint icon="news_2.png" tooltip="Neu !"/>
-                    </RuleOK>
-            
-                    <RuleNOK id="4711">
-                        <IconString>Speziell.png</IconString> 
-                    </RuleNOK>
+			<RuleOK id="100">
+				<isHidden/>
+				<Test1 xx="hallo"/>
+				<Entity id="1233" name="Allgemeine Umfrage">
+					<RuleOK id="999">
+						<IconString >xyz.png</IconString>
+					</RuleOK>
 
+					<RuleOK id="101">
+						<IconString >Allgemein.png</IconString>
+						<Hint icon="news_2.png" tooltip="Neu !"/>
+					</RuleOK>
 
-                <Type>Link</Type>
-                <Target RuleNOK="12345" >https://umfrage.audi.de</Target>
-            </Entity>
-            </RuleOK>
-            <Entity id="99_100" name="Allgemeine Umfrage">
-                    <RuleOK id="999"><IconString >xyz.png</IconString></RuleOK>
-
-                    <RuleOK id="101"> 
-                        <IconString >Allgemein.png</IconString>     
-                        <Hint icon="news_2.png" tooltip="Neu !"/>
-                    </RuleOK>
-            
-                    <RuleNOK id="4711">
-                        <IconString>Speziell.png</IconString> 
-                    </RuleNOK>
+					<RuleNOK id="4711">
+						<IconString>Speziell.png</IconString>
+					</RuleNOK>
 
 
-                <Type>Link</Type>
-                <Target RuleNOK="12345" >https://umfrage.audi.de</Target>
-            </Entity>
+					<Type>Link</Type>
+					<Target RuleNOK="12345">https://umfrage.audi.de</Target>
+				</Entity>
+			</RuleOK>
+			<Entity id="99_100" name="Allgemeine Umfrage">
+				<RuleOK id="999">
+					<IconString >xyz.png</IconString>
+				</RuleOK>
 
-            <Entity id="99_200" name="Kampagne_ClientBereinigung">
-                <Type>Service</Type>
-                <RuleNOK id="4711"> <isHidden/> </RuleNOK> <!-- Ergibt die Regel RuleNOK, wird die Entity nicht angezeigt-->
-                <IconString>Hardware_thin.png</IconString>
-                <Target>app://pageId=1000</Target>
-                <Hint icon="news_2.png" tooltip="Neu !"/>
-            </Entity>
- <tooltip>Ein Test</tooltip>
-            <Entity id="99_300" name="Kampagne_Softwareausphasung">
-                <Type>Service</Type>
-                <RuleNOK id="4712"> <isHidden/> </RuleNOK> <!-- Ergibt die Regel RuleNOK, wird die Entity nicht angezeigt-->
-                <IconString>Hardware_thin.png</IconString>
+				
+				
+				<RuleOK id="101">
+					<IconString >Allgemein.png</IconString>
+					<Hint icon="news_2.png" tooltip="Neu !"/>
+				</RuleOK>
+
+				<RuleNOK id="4711">
+					<IconString>Speziell.png</IconString>
+				</RuleNOK>
+
+
+				<Type>Link</Type>
+				<Type>Test Type</Type>
+				<Target RuleNOK="12345">https://umfrage.audi.de</Target>
+			</Entity>
+
+			<Entity id="99_200" name="Kampagne_ClientBereinigung">
+				<Type>Service</Type>
+				<RuleNOK id="4711">
+					<isHidden/>
+				</RuleNOK>
+				<!-- Ergibt die Regel RuleNOK, wird die Entity nicht angezeigt-->
+				<IconString>Hardware_thin.png</IconString>
+				<Target>app://pageId=1000</Target>
+				<Hint icon="news_2.png" tooltip="Neu !"/>
+			</Entity>
+			<tooltip>Ein Test</tooltip>
+			<Entity id="99_300" name="Kampagne_Softwareausphasung">
+				<Type>Service</Type>
+				<RuleNOK id="4712">
+					<isHidden/>
+				</RuleNOK>
+				<!-- Ergibt die Regel RuleNOK, wird die Entity nicht angezeigt-->
+				<IconString>Hardware_thin.png</IconString>
 				<RuleOK id="2344">
 					<Target verb="get">https://softwareausphasung.audi.de/campaign</Target>
 				</RuleOK>
@@ -101,86 +115,90 @@
 				<RuleOK id="999">
 					<Target verb="get">https://irgendwo.audi.de/campaign</Target>
 				</RuleOK>
-                <!-- Direkter Sprung auf die Intranet-Applikaton für die Softwareausphasung. Alle relevanten Details können über 
+				<!-- Direkter Sprung auf die Intranet-Applikaton für die Softwareausphasung. Alle relevanten Details können über 
                 Variablen übergeben werde (soweit in der App vorhanden)-->
-                <Hint icon="news_2.png" tooltip="Neu !"/>
-            </Entity>
-        </Group>
+				<Hint icon="news_2.png" tooltip="Neu !"/>
+			</Entity>
+		</Group>
 
-        <Group id="11" key="Test1">
-        <!-- Definition -->
-        </Group>
+		<Group id="11" key="Test1">
+			<!-- Definition -->
+		</Group>
 
-        <Group id="12" key="Test2">
-        <!-- Definition -->
-        </Group>
+		<Group id="12" key="Test2">
+			<!-- Definition -->
+		</Group>
 
-        <Group id="13" key="Test3">
-        <!-- Definition -->
-        </Group>
-    </Groups>
+		<Group id="13" key="Test3">
+			<!-- Definition -->
+		</Group>
+	</Groups>
 
 
-    <!-- UI -->
+	<!-- UI -->
 
-    <!-- NAV -->
-    <Navigation>
-        <Entity id="" name="">
-            <Type>Link</Type>
-            <IconString>Home.png</IconString>
-            <Target>app://pageId=100</Target>
-            <!--<Hint icon="news_2.png" tooltip="Neu !"/>-->
-        </Entity>
-        <Entity id="" name=""> 
-            <Type>Link</Type>
-            <IconString>Aktivity.png</IconString>
-            <Target>app://pageId=200</Target>
-            <Hint icon="news_2.png" tooltip="Neu !"/>
-        </Entity>
-        <Entity id="" name="">
-            <Type>Link</Type>
-            <IconString>Help.png</IconString>
-            <Target>app://pageId=300</Target>
-            <Hint icon="news_2.png" tooltip="Neu !"/>
-        </Entity>
-    </Navigation>
+	<!-- NAV -->
+	<Navigation>
+		<Entity id="" name="">
+			<Type>Link</Type>
+			<IconString>Home.png</IconString>
+			<Target>app://pageId=100</Target>
+			<!--<Hint icon="news_2.png" tooltip="Neu !"/>-->
+		</Entity>
+		<Entity id="" name="">
+			<Type>Link</Type>
+			<IconString>Aktivity.png</IconString>
+			<Target>app://pageId=200</Target>
+			<Hint icon="news_2.png" tooltip="Neu !"/>
+		</Entity>
+		<Entity id="" name="">
+			<Type>Link</Type>
+			<IconString>Help.png</IconString>
+			<Target>app://pageId=300</Target>
+			<Hint icon="news_2.png" tooltip="Neu !"/>
+		</Entity>
+	</Navigation>
 
-    <!-- Seiten-->
-    <Pages>
-        <!-- Standard-Seiten -->
-        <Page id="100" name="Home" template="default.xaml">
-            <IconString>Hardware_thin.png</IconString>
-            <displayType type="Button"/>
-            <Group id="11" />
-            <Group id="12" />
-        </Page>
+	<!-- Seiten-->
+	<Pages>
+		<!-- Standard-Seiten -->
+		<Page id="100" name="Home" template="default.xaml">
+			<IconString>Hardware_thin.png</IconString>
+			<displayType type="Button"/>
+			<Group id="11" />
+			<Group id="12" />
+		</Page>
 
-        <Page id="200" name="Activities" template="WithGroupFilter.xaml">
-            <IconString>Hardware_thin.png</IconString>
-            <displayType type="Button"/>
-            <Group id="200" /> 
-        </Page>
+		<Page id="200" name="Activities" template="WithGroupFilter.xaml">
+			<IconString>Hardware_thin.png</IconString>
+			<displayType type="Button"/>
+			<Group id="200" />
+		</Page>
 
-        <Page id="300" name="Help" template="Help.xaml">
-            <IconString>Hardware_thin.png</IconString>
-            <displayType type="Button"/>
-        </Page>
+		<Page id="300" name="Help" template="Help.xaml">
+			<IconString>Hardware_thin.png</IconString>
+			<displayType type="Button"/>
+		</Page>
 
-    <!-- Spezialseiten-->
-        <Page id="1000" name="CampaignDetails" template="CampaignDetails.xaml">
+		<!-- Spezialseiten-->
+		<Page id="1000" name="CampaignDetails" template="CampaignDetails.xaml">
 			<RuleOK id="3333">
 				<IconString>Hardware_thin.png</IconString>
 			</RuleOK>
-            <RuleOK id="4444"> <displayType type="Button"/> </RuleOK>
-            <RuleNOK id="4444"> <displayType type="Tile"/> </RuleNOK>
-            <Entity id="" name="">
-                <Type>List</Type>
-                <IconString>Help.png</IconString>
-                <Target>app://pageId=300</Target>
-                <Hint icon="news_2.png" tooltip="Neu !"/>
-            </Entity>
-        </Page>
-    </Pages>
+			<RuleOK id="4444">
+				<displayType type="Button"/>
+			</RuleOK>
+			<RuleNOK id="4444">
+				<displayType type="Tile"/>
+			</RuleNOK>
+			<Entity id="" name="">
+				<Type>List</Type>
+				<IconString>Help.png</IconString>
+				<Target>app://pageId=300</Target>
+				<Hint icon="news_2.png" tooltip="Neu !"/>
+			</Entity>
+		</Page>
+	</Pages>
 
 
 </Configuration>

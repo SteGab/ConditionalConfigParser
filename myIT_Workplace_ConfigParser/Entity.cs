@@ -6,11 +6,11 @@ namespace myIT_Workplace_ConfigParser
 {
     class Entity : UIElement
     {
-        String iconString;
-        String type;
-        String target;
-        String hintIcon;
-        String hintTooltip;
-        String groupId;
+        public String iconString;
+        public String type;
+        public String target;
+        public String hintIcon;
+        public String hintTooltip;
+        public String groupId;
     }
 }
