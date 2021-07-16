@@ -9,5 +9,6 @@ namespace myIT_Workplace_ConfigParser
     {
         public List<Rule> rules;
         public List<Group> groups;
+        public List<Page> pages;
     }
 }

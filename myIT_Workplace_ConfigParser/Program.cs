@@ -50,6 +50,21 @@ namespace myIT_Workplace_ConfigParser
                 }
                 
             }
+
+            Console.WriteLine("");
+            Console.WriteLine("Pages in Configuration: {0}", cm.pages.Count);
+            foreach (var page in cm.pages)
+            {
+                Console.WriteLine("Page {0}", page.id);
+                Console.WriteLine("       name: {0}", page.name);
+                Console.WriteLine("       template: {0}", page.template);
+                Console.Write("       pages: ");
+                foreach (var group in page.groups)
+                {
+                    Console.Write("{0}, ", group);
+                }
+                Console.WriteLine("");
+            }
         }
     }
 }

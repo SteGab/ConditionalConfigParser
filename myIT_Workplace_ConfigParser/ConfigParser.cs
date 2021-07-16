@@ -34,7 +34,7 @@ namespace myIT_Workplace_ConfigParser
 
             parseGroups();
 
-            //parsePages();
+            parsePages();
 
             Console.WriteLine("***** Parsing done");
 
@@ -186,7 +186,7 @@ namespace myIT_Workplace_ConfigParser
                 parseConfigTags(subNodes, actEntity);
 
                 // Parse Conditional Entity configuration for RuleOK
-                subNodes = entityNavigator.Select("./*[(self::RuleOK)]");
+                subNodes = entityNavigator.Select("./*[self::RuleOK]");
                 while (subNodes.MoveNext())
                 {
                     if (evaluateRule(subNodes, false))
@@ -196,7 +196,7 @@ namespace myIT_Workplace_ConfigParser
                 }
 
                 // Parse Conditional Entity configuration for RuleNOK
-                subNodes = entityNavigator.Select("./*[(self::RuleNOK)]");
+                subNodes = entityNavigator.Select("./*[self::RuleNOK]");
                 while (subNodes.MoveNext())
                 {
                     if (evaluateRule(subNodes, true))
@@ -207,9 +207,62 @@ namespace myIT_Workplace_ConfigParser
             }
         }
 
-        private void parsePageTags(XPathNodeIterator nodes, Entity entity)
+        private void parsePages()
         {
+            
+            
+
+            //Parse Page configuration
+            XPathNodeIterator nodes = navigator.Select("/Configuration/Pages/*[self::Page]");
+            while (nodes.MoveNext())
+            {
+                Page actPage = datamodelFactory.addPage();
+                actPage.id = nodes.Current.GetAttribute("id", "");
+                actPage.name = nodes.Current.GetAttribute("name", "");
+                actPage.template = nodes.Current.GetAttribute("template", "");
+
+                XPathNavigator pageNavigator = nodes.Current.CreateNavigator();
+                XPathNodeIterator groupNodes = pageNavigator.Select("./*[self::Group]");
+
+                while (groupNodes.MoveNext())
+                {
+                    actPage.groups.Add(groupNodes.Current.GetAttribute("id", ""));
+                }
+
+                XPathNodeIterator ruleNodes = pageNavigator.Select("./*[self::RuleOK]");
+                while (ruleNodes.MoveNext())
+                {
+                    if (evaluateRule(ruleNodes, false))
+                    {
+                        XPathNodeIterator groupOKNodes = ruleNodes.Current.Select("./*[self::Group]");
+                        while (groupOKNodes.MoveNext())
+                        {
+                            actPage.groups.Add(groupOKNodes.Current.GetAttribute("id", ""));
+                        }
+                    }
+                }
+
+                ruleNodes = pageNavigator.Select("./*[self::RuleNOK]");
+                while (ruleNodes.MoveNext())
+                {
+                    if (evaluateRule(ruleNodes, true))
+                    {
+                        XPathNodeIterator groupOKNodes = ruleNodes.Current.Select("./*[self::Group]");
+                        while (groupOKNodes.MoveNext())
+                        {
+                            actPage.groups.Add(groupOKNodes.Current.GetAttribute("id", ""));
+                        }
+                    }
+                }
+
+            }
+
+            
+            
+
 
         }
+
+        
     }
 }

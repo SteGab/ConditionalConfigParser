@@ -163,40 +163,42 @@
 	<Pages>
 		<!-- Standard-Seiten -->
 		<Page id="100" name="Home" template="default.xaml">
-			<IconString>Hardware_thin.png</IconString>
-			<displayType type="Button"/>
-			<Group id="11" />
-			<Group id="12" />
+			<Group id="100_1" />
+			<Group id="100_2" />
 		</Page>
 
 		<Page id="200" name="Activities" template="WithGroupFilter.xaml">
-			<IconString>Hardware_thin.png</IconString>
-			<displayType type="Button"/>
-			<Group id="200" />
+			<Group id="200_1" />
 		</Page>
 
 		<Page id="300" name="Help" template="Help.xaml">
-			<IconString>Hardware_thin.png</IconString>
-			<displayType type="Button"/>
+			<!-- No elements configured. Page is fully determined by xaml.-->
 		</Page>
 
 		<!-- Spezialseiten-->
 		<Page id="1000" name="CampaignDetails" template="CampaignDetails.xaml">
-			<RuleOK id="3333">
-				<IconString>Hardware_thin.png</IconString>
+			<Group id="1000_1" />
+			
+			<RuleOK id="101">
+				<Group id="1000_2" />
+				<Group id="1000_3" />
 			</RuleOK>
-			<RuleOK id="4444">
-				<displayType type="Button"/>
-			</RuleOK>
-			<RuleNOK id="4444">
-				<displayType type="Tile"/>
+
+			<RuleNOK id="99">
+				<Group id="1000_4" />
+				<Group id="1000_5" />
 			</RuleNOK>
-			<Entity id="" name="">
-				<Type>List</Type>
-				<IconString>Help.png</IconString>
-				<Target>app://pageId=300</Target>
-				<Hint icon="news_2.png" tooltip="Neu !"/>
-			</Entity>
+
+			<RuleNOK id="110">
+				<Group id="1000_6" />
+				<Group id="1000_7" />
+			</RuleNOK>
+
+			<RuleOK id="2711">
+				<Group id="1000_200" />
+				<Group id="1000_300" />
+			</RuleOK>
+			
 		</Page>
 	</Pages>
 

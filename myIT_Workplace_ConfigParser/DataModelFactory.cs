@@ -10,6 +10,7 @@ namespace myIT_Workplace_ConfigParser
     {
         public List<Rule> rules = new List<Rule>();
         public List<Group> groups = new List<Group>();
+        public List<Page> pages = new List<Page>();
 
         public void addRule(String id, String name, String term)
         {
@@ -21,6 +22,13 @@ namespace myIT_Workplace_ConfigParser
             Group group = new Group();
             groups.Add(group);
             return group;
+        }
+
+        public Page addPage()
+        {
+            Page page = new Page();
+            pages.Add(page);
+            return page;
         }
 
         public Entity addEntityToGroup(Group group)
@@ -35,6 +43,7 @@ namespace myIT_Workplace_ConfigParser
             var dataModel = new ConfigModel();
             dataModel.groups = groups;
             dataModel.rules = rules;
+            dataModel.pages = pages;
 
             return dataModel;
         }
