@@ -1,4 +1,4 @@
-﻿using myIT_Workplace_ConfigParser.Datamodel;
+using myIT_Workplace_ConfigParser.Datamodel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -46,7 +46,9 @@ namespace myIT_Workplace_ConfigParser
 
         private Boolean parseTerm(String ruleTerm)
         {
-            return true;
+            Boolean termResult = true;
+            //A miracle occurs!!!
+            return termResult;
         }
     }
 }
